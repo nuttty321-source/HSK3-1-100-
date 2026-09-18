@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HSK3 Vocabulary Challenge 1–100</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f6f7fb;color:#20242a}
+.wrap{max-width:720px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+h1{font-size:24px;margin:4px 0}.muted{color:#68707d;font-size:14px}.bar{height:9px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin:16px 0 20px}.fill{height:100%;width:0;background:#5b5bd6;transition:.2s}
+.card{background:white;border:1px solid #e2e5ea;border-radius:20px;padding:24px;box-shadow:0 4px 18px #0000000b}
+.center{text-align:center}.word{font-size:42px;font-weight:800;margin-top:10px}.py{font-size:19px;color:#68707d;margin-bottom:22px}
+.opt{display:block;width:100%;min-height:52px;margin:10px 0;padding:12px 15px;border:1px solid #d8dce3;border-radius:13px;background:#fff;text-align:left;font-size:16px;cursor:pointer}
+.opt:hover{border-color:#5b5bd6}.opt.correct{background:#e8f7ee;border-color:#39a96b}.opt.wrong{background:#fff0f0;border-color:#df5b5b}
+.feedback{min-height:28px;text-align:center;font-weight:700;margin:14px 0}.btn{border:0;border-radius:12px;padding:12px 18px;background:#5b5bd6;color:white;font-weight:700;font-size:16px;cursor:pointer}.btn.secondary{background:#ececfb;color:#30306e}
+.actions{text-align:center}.result{font-size:28px;font-weight:800;margin:16px 0}.small{font-size:13px;color:#68707d;margin-top:12px}
+@media(max-width:480px){.wrap{padding:14px}.card{padding:18px}.word{font-size:36px}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="top">
+    <div><div class="muted">HSK3 Vocabulary Challenge</div><h1>คำศัพท์ HSK3 คำที่ 1–100</h1></div>
+    <div class="muted" id="score">คะแนน 0</div>
+  </div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <div class="card">
+    <div class="center muted" id="num">ข้อ 1 / 100</div>
+    <div class="center word" id="word">—</div>
+    <div class="center py" id="pinyin">—</div>
+    <div id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="actions"><button class="btn" id="next" style="display:none">ข้อถัดไป →</button></div>
+    <div class="center small">เลือกคำตอบที่มีความหมายตรงกับคำศัพท์จีน</div>
+  </div>
+</div>
+<script>
+const words = [
+["提高","tígāo","เพิ่มขึ้น / ยกระดับ"],
+["影响","yǐngxiǎng","ส่งผลกระทบ"],
+["了解","liǎojiě","เข้าใจ / รู้จัก"],
+["留学","liúxué","ไปศึกษาต่อต่างประเทศ"],
+["完成","wánchéng","ทำเสร็จ / สำเร็จ"],
+["发现","fāxiàn","ค้นพบ / พบว่า"],
+["决定","juédìng","ตัดสินใจ"],
+["参加","cānjiā","เข้าร่วม"],
+["选择","xuǎnzé","เลือก"],
+["特别","tèbié","พิเศษ / โดยเฉพาะ"],
+["一般","yìbān","ทั่วไป / ธรรมดา"],
+["主要","zhǔyào","หลัก / สำคัญ"],
+["历史","lìshǐ","ประวัติศาสตร์"],
+["文化","wénhuà","วัฒนธรรม"],
+["环境","huánjìng","สิ่งแวดล้อม / สภาพแวดล้อม"],
+["关系","guānxi","ความสัมพันธ์"],
+["机会","jīhuì","โอกาส"],
+["原因","yuányīn","สาเหตุ / เหตุผล"],
+["结果","jiéguǒ","ผลลัพธ์ / ผล"],
+["方法","fāngfǎ","วิธีการ"],
+["需要","xūyào","ต้องการ / จำเป็นต้อง"],
+["同意","tóngyì","เห็นด้วย / ยินยอม"],
+["要求","yāoqiú","ต้องการ / เรียกร้อง"],
+["决定","juédìng","ตัดสินใจ"],
+["解决","jiějué","แก้ไข / แก้ปัญหา"],
+["接受","jiēshòu","ยอมรับ / รับ"],
+["拒绝","jùjué","ปฏิเสธ"],
+["检查","jiǎnchá","ตรวจสอบ / ตรวจ"],
+["解释","jiěshì","อธิบาย"],
+["练习","liànxí","ฝึกฝน / แบบฝึกหัด"],
+["提高","tígāo","ปรับปรุง / ยกระดับ"],
+["继续","jìxù","ดำเนินต่อ / ต่อไป"],
+["停止","tíngzhǐ","หยุด"],
+["开始","kāishǐ","เริ่มต้น"],
+["结束","jiéshù","จบ / สิ้นสุด"],
+["最近","zuìjìn","ช่วงนี้ / เมื่อเร็ว ๆ นี้"],
+["以前","yǐqián","ก่อนหน้านี้ / เมื่อก่อน"],
+["后来","hòulái","ภายหลัง / ต่อมา"],
+["突然","tūrán","ทันใดนั้น / อยู่ ๆ"],
+["终于","zhōngyú","ในที่สุด"],
+["经常","jīngcháng","บ่อย ๆ / เป็นประจำ"],
+["特别","tèbié","เป็นพิเศษ"],
+["一定","yídìng","แน่นอน / ต้อง"],
+["当然","dāngrán","แน่นอน / แน่อยู่แล้ว"],
+["可能","kěnéng","อาจจะ / เป็นไปได้"],
+["必须","bìxū","ต้อง / จำเป็นต้อง"],
+["应该","yīnggāi","ควร"],
+["如果","rúguǒ","ถ้าหาก / ถ้า"],
+["虽然","suīrán","แม้ว่า / ถึงแม้ว่า"],
+["但是","dànshì","แต่ / แต่ว่า"],
+["为了","wèile","เพื่อ / เพื่อที่จะ"],
+["关于","guānyú","เกี่ยวกับ"],
+["除了","chúle","นอกจาก"],
+["根据","gēnjù","ตาม / อ้างอิงจาก"],
+["通过","tōngguò","ผ่าน / โดยผ่าน"],
+["附近","fùjìn","บริเวณใกล้เคียง"],
+["地方","dìfang","สถานที่ / ที่"],
+["城市","chéngshì","เมือง"],
+["农村","nóngcūn","ชนบท"],
+["国家","guójiā","ประเทศ"],
+["世界","shìjiè","โลก"],
+["社会","shèhuì","สังคม"],
+["生活","shēnghuó","ชีวิต / การดำรงชีวิต"],
+["工作","gōngzuò","งาน / ทำงาน"],
+["学习","xuéxí","เรียน / เรียนรู้"],
+["考试","kǎoshì","สอบ / การสอบ"],
+["成绩","chéngjì","คะแนน / ผลการเรียน"],
+["经验","jīngyàn","ประสบการณ์"],
+["知识","zhīshi","ความรู้"],
+["问题","wèntí","ปัญหา / คำถาม"],
+["答案","dá'àn","คำตอบ"],
+["办法","bànfǎ","วิธี / ทางแก้"],
+["计划","jìhuà","แผน / วางแผน"],
+["准备","zhǔnbèi","เตรียม / เตรียมตัว"],
+["安排","ānpái","จัด / จัดการ / วางแผน"],
+["帮助","bāngzhù","ช่วย / ความช่วยเหลือ"],
+["需要","xūyào","ต้องการ / จำเป็น"],
+["希望","xīwàng","หวัง / ความหวัง"],
+["相信","xiāngxìn","เชื่อ"],
+["认为","rènwéi","คิดว่า / เห็นว่า"],
+["觉得","juéde","รู้สึก / คิดว่า"],
+["了解","liǎojiě","เข้าใจ / รู้จัก"],
+["知道","zhīdào","รู้"],
+["记得","jìde","จำได้"],
+["忘记","wàngjì","ลืม"],
+["认识","rènshi","รู้จัก"],
+["联系","liánxì","ติดต่อ"],
+["介绍","jièshào","แนะนำ"],
+["告诉","gàosu","บอก"],
+["回答","huídá","ตอบ"],
+["问","wèn","ถาม"],
+["聊天","liáotiān","พูดคุย / แชต"],
+["同学","tóngxué","เพื่อนร่วมชั้น"],
+["老师","lǎoshī","ครู"],
+["学生","xuésheng","นักเรียน / นักศึกษา"],
+["朋友","péngyou","เพื่อน"],
+["家人","jiārén","สมาชิกในครอบครัว"],
+["自己","zìjǐ","ตัวเอง"],
+["别人","biérén","คนอื่น"],
+["大家","dàjiā","ทุกคน"]
+];
+
+// สร้างตัวเลือกจากคำตอบในชุดนี้ และเติมตัวเลือกสำรองเพื่อให้ครบ 4 ตัวเลือก
+const meanings=[...new Set(words.map(x=>x[2]))];
+let order=[],pos=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5)}
+function makeOptions(correct){
+  let pool=meanings.filter(x=>x!==correct);
+  while(pool.length<3) pool.push("ความหมายอื่น");
+  return shuffle([correct,...shuffle(pool).slice(0,3)]);
+}
+function render(){
+  answered=false;
+  const d=order[pos];
+  $("num").textContent=`ข้อ ${pos+1} / ${order.length}`;
+  $("word").textContent=d[0]; $("pinyin").textContent=d[1];
+  $("feedback").textContent=""; $("next").style.display="none";
+  $("fill").style.width=(pos/order.length*100)+"%";
+  $("options").innerHTML="";
+  makeOptions(d[2]).forEach(txt=>{
+    const b=document.createElement("button"); b.className="opt"; b.textContent=txt;
+    b.addEventListener("click",()=>answer(b,txt,d[2])); $("options").appendChild(b);
+  });
+}
+function answer(btn,chosen,correct){
+  if(answered)return; answered=true;
+  document.querySelectorAll(".opt").forEach(b=>{b.disabled=true;if(b.textContent===correct)b.classList.add("correct")});
+  if(chosen===correct){score++;$("score").textContent="คะแนน "+score;$("feedback").textContent="✅ ถูกต้อง!"}
+  else{btn.classList.add("wrong");$("feedback").textContent="❌ ยังไม่ถูก — คำตอบคือ “"+correct+"”"}
+  $("next").style.display="inline-block";
+}
+function finish(){
+  $("fill").style.width="100%";$("num").textContent="จบเกม 🎉";$("word").textContent="เก่งมาก!";
+  $("pinyin").textContent="";$("options").innerHTML="";
+  $("feedback").textContent=`คะแนนสุดท้าย ${score} / ${order.length}`;
+  $("next").style.display="none";
+  const again=document.createElement("button");again.className="btn secondary";again.textContent="เล่นใหม่";
+  again.addEventListener("click",start);$("options").appendChild(again);
+}
+$("next").addEventListener("click",()=>{pos++;if(pos>=order.length)finish();else render()});
+function start(){order=shuffle(words).slice(0,100);pos=0;score=0;$("score").textContent="คะแนน 0";render()}
+start();
+</script>
+</body>
+</html>
